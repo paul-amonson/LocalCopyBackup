@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26730.15
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocalCopyBackup", "LocalCopyBackup\LocalCopyBackup.csproj", "{95C0C306-1A26-45D7-B6F7-CD5AF27D4E2E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocalCopyBackup", "LocalCopyBackup.csproj", "{95C0C306-1A26-45D7-B6F7-CD5AF27D4E2E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Backup", "LocalCopyBackup\BackupPlan\Backup.csproj", "{85BEFB4C-1FDD-4B5E-96AE-F941061AFE10}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Backup", "BackupPlan\Backup.csproj", "{85BEFB4C-1FDD-4B5E-96AE-F941061AFE10}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
