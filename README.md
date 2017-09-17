@@ -38,5 +38,4 @@ This software fulfulled an immediate need but I also believe others may find it 
 
 ___One thing to note:___ I intentionally did not use a file watcher because they do not work properly on network mounted drives.
 
-Thanks,
 Paul
