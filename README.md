@@ -21,16 +21,22 @@ The feature set is intentionally small. I included only what I considered necess
 ### Add/Edit/Delete a Backup Plan
 ![Add Plan Dialog](AddPlan.png)
 
-The software will generate an encrypted index file in the target folder with GUID based names for the backup when run . Encrypted file backups are in a subfolder of the target folder using the same GUID as the index filename.
+The software will generate an encrypted index file in the target folder with GUID based names for the backup when run the first time. Encrypted file backups are in a subfolder of the target folder using the same GUID as the index filename.
 ### Running and Stopping Backups
-Running a backup is simple just press the _Run All Now_ button on the interface. All plans will be run, I have provided no granularity here promoting a _simple design philosophy_. Backups can be stopped but this is __not__ recommended. I recogonised that sometimes you have no choice to halt a backup but this may lead to an unknown backup state.
+Running a backup is simple, just press the _Run All Now_ button on the interface. All plans will be run, I have provided no granularity here. I am promoting a _simple design philosophy_. Backups can be stopped but this is __not__ recommended. I recogonise that sometimes you have no choice but to halt a backup and this may lead to an unknown backup state.
 ### Running and Stopping a Restore
-Clicking the _Restore_ button will prompt you for a location to put the folder orginally backed up. The default will be the source folder for the backup but you can change to another location if desired. A restore __can__ be interrupted with no ill effects.
+Clicking the _Restore_ button will prompt you for a location to put the folder that was orginally backed up. The default folder will be the source folder for the backup but you can change the folder to another location if desired. A restore __can__ be interrupted with no ill effects.
 ### Timed Backups
-Checking the button labeled _Enable 4 Hour Backup_ with cause the software toi start a backup every 4 hours from midnight. You can change this value only by editing the configuration file. Usually every 4 hours, the default, is a good choice.
+Checking the button labeled _Enable 4 Hour Backup_ with cause the software to start a backup every 4 hours from midnight. You can change this value only by editing the configuration file. Usually every 4 hours, the default, is a good choice.
 ### Importing Backups for Restore
-When you experience a failure it is assumed the the drive with the configuration folder is lost. So saved keys and the cloud backup is all you need to recreate a backup plan and restore a backup. Use the _Import Backup_ to begin the restore process.
+When you experience a failure it is assumed the drive with the configuration folder is lost. So saved keys and the cloud backup is all you need to recreate a backup plan and restore a backup. Use the _Import Backup_ to begin the restore process.
 ### Exporting Keys
 This feature is designed to backup keys for catastropic failure restore.
 
 ## Summary
+This software fulfulled an immediate need but I also believe others may find it useful. I did not completely sanitize the source code's style and there may still be obvious optimizations (I am not completely up to speed on all new C# features). So comments are welcome but please note not all comments will be acted upon.
+
+___One thing to note:___ I intentionally did not use a file watcher because they do not work properly on network mounted drives.
+
+Thanks,
+Paul
