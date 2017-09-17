@@ -1,5 +1,5 @@
 # LocalCopyBackup
-C# windows application to create a compressed/encrypted local backup of folders.
+C# windows application (Visual Studio 2017 Community Edition) to create a compressed/encrypted local backup of folders.
 
 ## Introduction
 This project was an experiment in doing 3 things in the wake of CrashPlan abandoning consumer customers:
