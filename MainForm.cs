@@ -197,6 +197,7 @@ namespace LocalCopyBackup
                 {
                     currentRunningPlan_ = plan;
                     Invoke(new FormDelegate(PlanListViewSelectedIndexChanged), null, null);
+                    AddLogEntry(string.Format("*** Indexing {0}...", plan.FolderToBackup));
                     var result = plan.RunBackup();
                     Invoke(new PlanDelegate(SetRunResult), plan, result);
                     if (haltRun_)
