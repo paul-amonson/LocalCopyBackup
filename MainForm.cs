@@ -1,36 +1,19 @@
-﻿/*
-Copyright (c) 2017 Paul Amonson
+﻿// Copyright (c) 2017-2018, Paul Amonson
+// SPDX-License-Identifier: MIT
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-*/
 using System;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Backup;
+using BackupPlan;
 
 namespace LocalCopyBackup
 {
     public partial class MainForm : Form
     {
         private delegate void BoolDelegate(bool state);
-        private delegate void PlanDelegate(BackupPlan plan, bool result);
+        private delegate void PlanDelegate(BackupPlan.BackupPlan plan, bool result);
         private delegate void FormDelegate(object sender, EventArgs e);
 
         public MainForm()
@@ -91,14 +74,14 @@ namespace LocalCopyBackup
             };
             if (dlg.ShowDialog(this) == DialogResult.OK)
             {
-                var plan = new BackupPlan(dlg.PlanName, dlg.SourceFolder, dlg.DestinationFolder, null, AddLogEntry);
+                var plan = new BackupPlan.BackupPlan(dlg.PlanName, dlg.SourceFolder, dlg.DestinationFolder, null, AddLogEntry);
                 AddPlan(plan);
             }
         }
 
         private void EditPlanButtonClick(object sender, EventArgs e)
         {
-            BackupPlan plan = (BackupPlan)planListView_.SelectedItems[0].Tag;
+            BackupPlan.BackupPlan plan = (BackupPlan.BackupPlan)planListView_.SelectedItems[0].Tag;
             var dlg = new PlanEditor {
                 Text = "Edit Backup Plan",
                 PlanName = plan.Name,
@@ -117,13 +100,13 @@ namespace LocalCopyBackup
         private void DeletePlanButtonClick(object sender, EventArgs e)
         {
             var item = planListView_.SelectedItems[0];
-            var plan = (BackupPlan)item.Tag;
+            var plan = (BackupPlan.BackupPlan)item.Tag;
             plans_.Remove(plan);
             planListView_.Items.Remove(item);
             runNowToolStripButton_.Enabled = (plans_.Count > 0);
         }
 
-        private void AddPlan(BackupPlan plan)
+        private void AddPlan(BackupPlan.BackupPlan plan)
         {
             var item = new ListViewItem(plan.Name);
             var subitems = new ListViewItem.ListViewSubItemCollection(item) {
@@ -140,7 +123,7 @@ namespace LocalCopyBackup
 
         private void UpdateItem(ListViewItem item)
         {
-            BackupPlan plan = (BackupPlan)item.Tag;
+            BackupPlan.BackupPlan plan = (BackupPlan.BackupPlan)item.Tag;
             item.Text = plan.Name;
             item.SubItems[0].Text = plan.FolderToBackup;
             item.SubItems[1].Text = plan.DestinationFolder;
@@ -177,10 +160,10 @@ namespace LocalCopyBackup
             runNowToolStripButton_.Enabled = (plans_.Count > 0);
         }
 
-        private ListViewItem LookupItem(BackupPlan plan)
+        private ListViewItem LookupItem(BackupPlan.BackupPlan plan)
         {
             foreach (ListViewItem item in planListView_.Items)
-                if (item.Tag as BackupPlan == plan)
+                if (item.Tag as BackupPlan.BackupPlan == plan)
                     return item;
             return null;
         }
@@ -212,7 +195,7 @@ namespace LocalCopyBackup
             });
         }
 
-        private void SetRunResult(BackupPlan plan, bool result)
+        private void SetRunResult(BackupPlan.BackupPlan plan, bool result)
         {
             var subitem = LookupItem(plan).SubItems[3];
             subitem.Text = result ? "Success" : "Failure";
@@ -254,10 +237,10 @@ namespace LocalCopyBackup
             }
         }
 
-        private BackupPlan GetSelectedPlan()
+        private BackupPlan.BackupPlan GetSelectedPlan()
         {
             if(planListView_.SelectedItems != null && planListView_.SelectedItems.Count == 1)
-                return (BackupPlan)planListView_.SelectedItems[0].Tag;
+                return (BackupPlan.BackupPlan)planListView_.SelectedItems[0].Tag;
             return null;
         }
 
@@ -330,7 +313,7 @@ namespace LocalCopyBackup
             else
                 return;
             var indexName = Path.GetFileNameWithoutExtension(indexFileName);
-            var plan = BackupPlan.ImportFromIndexFile(key, indexFileName, AddLogEntry);
+            var plan = BackupPlan.BackupPlan.ImportFromIndexFile(key, indexFileName, AddLogEntry);
             AddPlan(plan);
         }
 
@@ -372,7 +355,7 @@ namespace LocalCopyBackup
 
         private BackupPlanList plans_ = new BackupPlanList();
         private Task runTask_ = null;
-        private BackupPlan currentRunningPlan_ = null;
+        private BackupPlan.BackupPlan currentRunningPlan_ = null;
         private bool haltRun_ = false;
         private bool isRunning_ = false;
         private System.Drawing.Font font_;

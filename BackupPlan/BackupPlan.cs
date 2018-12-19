@@ -1,34 +1,19 @@
-﻿/*
-Copyright (c) 2017 Paul Amonson
+﻿// Copyright (c) 2017-2018, Paul Amonson
+// SPDX-License-Identifier: MIT
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-*/
 #region Using Section
+
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Security.Cryptography;
-using System.Collections.Generic;
+using Backup;
 using Newtonsoft.Json;
+
 #endregion
 
-namespace Backup
+namespace BackupPlan
 {
     public delegate void LogCallback(string text);
 
@@ -36,7 +21,7 @@ namespace Backup
     public class BackupPlan
     {
         #region Constants
-        const int BUFFER_SIZE = 4194304; // 4 MB Buffer.
+        const int BufferSize = 4194304; // 4 MB Buffer.
         #endregion
 
         #region API Methods
@@ -47,15 +32,15 @@ namespace Backup
             Callback = callback;
             key_ = new KeyData();
             if (backupName == null || backupName.Trim() == "")
-                throw new ArgumentNullException("BackupPlan.ctor: backupName must not be null or empty!");
+                throw new ArgumentNullException(nameof(backupName));
             Name = backupName;
             if (folderToBackup == null || folderToBackup.Trim() == "")
-                throw new ArgumentNullException("BackupPlan.ctor: folderToBackup must not be null or empty!");
+                throw new ArgumentNullException(nameof(folderToBackup));
             if (Directory.Exists(folderToBackup) == false)
                 throw new DirectoryNotFoundException("BackupPlan.ctor: folderToBackup was not found!");
             FolderToBackup = folderToBackup;
             if(destinationFolder == null || destinationFolder.Trim() == "")
-                throw new ArgumentNullException("BackupPlan.ctor: destinationFolder must not be null or empty!");
+                throw new ArgumentNullException(nameof(destinationFolder));
             if (Directory.Exists(destinationFolder) == false)
                 throw new DirectoryNotFoundException("BackupPlan.ctor: destinationFolder was not found!");
             DestinationFolder = destinationFolder;
@@ -183,7 +168,7 @@ namespace Backup
             var aes = Aes.Create();
             aes.Key = key_.Key;
             aes.IV = key_.IV;
-            using (var inStream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read, BUFFER_SIZE))
+            using (var inStream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read, BufferSize))
             {
                 var transform = aes.CreateDecryptor();
                 using (var cryptStream = new CryptoStream(inStream, transform, CryptoStreamMode.Read))
@@ -196,7 +181,7 @@ namespace Backup
             var aes = Aes.Create();
             aes.Key = key_.Key;
             aes.IV = key_.IV;
-            using (var outStream = new FileStream(filename, FileMode.Create, FileAccess.Write, FileShare.Write, BUFFER_SIZE))
+            using (var outStream = new FileStream(filename, FileMode.Create, FileAccess.Write, FileShare.Write, BufferSize))
             {
                 var transform = aes.CreateEncryptor();
                 using (var cryptStream = new CryptoStream(outStream, transform, CryptoStreamMode.Write))
@@ -234,7 +219,7 @@ namespace Backup
                     var folder = Path.Combine(DestinationFolder, IndexName);
                     if (!Directory.Exists(folder))
                         Directory.CreateDirectory(folder);
-                    BackupCopy(Path.Combine(FolderToBackup, file.RelativeFilename), Path.Combine(DestinationFolder, IndexName, file.ID), key_);
+                    BackupCopy(Path.Combine(FolderToBackup, file.RelativeFilename), Path.Combine(DestinationFolder, IndexName, file.Id), key_);
                     file.PromoteNewValues();
                 } catch (Exception ex) {
                     Log("*** ERROR: failed to backup file {0}: {1}: {2}", Path.Combine(FolderToBackup, file.RelativeFilename), ex.GetType().Name, ex.Message);
@@ -259,7 +244,7 @@ namespace Backup
                     return false;
                 try
                 {
-                    RestoreCopy(Path.Combine(DestinationFolder, IndexName, file.ID), Path.Combine(newDestination, file.RelativeFilename), key_);
+                    RestoreCopy(Path.Combine(DestinationFolder, IndexName, file.Id), Path.Combine(newDestination, file.RelativeFilename), key_);
                 } catch (Exception ex) {
                     Log("*** ERROR: failed to restore file {0}: {1}", Path.Combine(newDestination, file.RelativeFilename), ex.Message);
                     result = false;
@@ -289,8 +274,8 @@ namespace Backup
                 aes.IV = key.IV;
                 if (backup)
                 {
-                    using (var fileStream = new FileStream(source, FileMode.Open, FileAccess.Read, FileShare.Read, BUFFER_SIZE))
-                    using (var outStream = new FileStream(destination, FileMode.Create, FileAccess.Write, FileShare.Write, BUFFER_SIZE))
+                    using (var fileStream = new FileStream(source, FileMode.Open, FileAccess.Read, FileShare.Read, BufferSize))
+                    using (var outStream = new FileStream(destination, FileMode.Create, FileAccess.Write, FileShare.Write, BufferSize))
                     {
                         var transform = aes.CreateEncryptor();
                         using (var cryptStream = new CryptoStream(outStream, transform, CryptoStreamMode.Write))
@@ -300,8 +285,8 @@ namespace Backup
                 }
                 else
                 {
-                    using (var fileStream = new FileStream(source, FileMode.Open, FileAccess.Read, FileShare.Read, BUFFER_SIZE))
-                    using (var outStream = new FileStream(destination, FileMode.Create, FileAccess.Write, FileShare.Write, BUFFER_SIZE))
+                    using (var fileStream = new FileStream(source, FileMode.Open, FileAccess.Read, FileShare.Read, BufferSize))
+                    using (var outStream = new FileStream(destination, FileMode.Create, FileAccess.Write, FileShare.Write, BufferSize))
                     {
                         var transform = aes.CreateDecryptor();
                         using (var cryptStream = new CryptoStream(fileStream, transform, CryptoStreamMode.Read))

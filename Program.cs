@@ -1,40 +1,61 @@
-﻿/*
-Copyright (c) 2017 Paul Amonson
+﻿// Copyright (c) 2017-2018, Paul Amonson
+// SPDX-License-Identifier: MIT
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-*/
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Windows.Forms;
+using Backup;
+using BackupPlan;
 
 namespace LocalCopyBackup
 {
-    static class Program
+    internal static class Program
     {
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        private static void Main(string[] rawArgs)
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm());
+            var args = new List<string>(rawArgs);
+            if (args.Contains("--backup-now"))
+            { // Run immediate backup...
+                RunBackup();
+            }
+            else
+            { // Run GUI...
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+                Application.Run(new MainForm());
+            }
+        }
+
+        private static void RunBackup()
+        {
+            var plans = LoadPlans();
+            foreach (var plan in plans)
+                plan.RunBackup();
+        }
+
+        private static string GetSettingsFolder()
+        {
+            var home = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory).Replace("Desktop", "");
+            return home + ".local_backup";
+        }
+
+        private static BackupPlanList LoadPlans()
+        {
+            var settingsFolder = GetSettingsFolder();
+            var plansFile = Path.Combine(settingsFolder, "plans_file");
+            return BackupPlanList.Load(plansFile, Log);
+        }
+
+        private static void Log(string text)
+        {
+            var logFile = Path.Combine(GetSettingsFolder(), "UnattendedBackup.log");
+            using (var file = new StreamWriter(logFile, true))
+                file.WriteLine(text);
         }
     }
 }
